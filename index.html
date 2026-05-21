@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>IT Asset Audit Tracker</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+ --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+ --color-text-primary:#1f2328;
+ --color-text-secondary:#646b75;
+ --color-background-primary:#fff;
+ --color-background-secondary:#f6f7f9;
+ --color-border-secondary:#c9d1d9;
+ --color-border-tertiary:#d8dee4;
+ --border-radius-md:10px;
+ --border-radius-lg:14px;
+}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{font-family:var(--font-sans);color:var(--color-text-primary);min-width:0;width:100%;overflow-x:hidden;background:var(--color-background-secondary);line-height:1.45}
+button,input,select,textarea{font:inherit;max-width:100%}
+button,.nav-btn,.btn-submit,.btn-action{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.wrap{width:100%;max-width:820px;margin:0 auto;padding:12px;padding-bottom:calc(24px + env(safe-area-inset-bottom))}
+.nav{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:1rem;position:sticky;top:0;z-index:5;padding:8px 0;background:var(--color-background-secondary)}
+.nav-btn{min-height:48px;padding:9px 6px;font-size:13px;font-weight:500;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);background:transparent;color:var(--color-text-secondary);cursor:pointer;text-align:center;line-height:1.2;overflow:hidden;white-space:normal}
+.nav-btn.active{background:var(--color-background-primary);color:var(--color-text-primary);border-color:var(--color-border-secondary)}
+.nav-btn i{display:block;font-style:normal;font-size:19px;margin-bottom:2px}
+.section{display:none}.section.active{display:block}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem;margin-bottom:1rem;position:relative;box-shadow:0 1px 2px rgba(31,35,40,.04)}
+.field{margin-bottom:14px}.field label{font-size:13px;color:var(--color-text-secondary);display:block;margin-bottom:5px}
+input,select,textarea{width:100%;font-size:16px;min-height:46px;padding:10px 12px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);-webkit-appearance:none;appearance:none}
+textarea{resize:vertical;min-height:92px;line-height:1.5}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field-compact{margin-bottom:0}
+.btn-submit{width:100%;min-height:48px;padding:14px;font-size:15px;font-weight:600;border:none;border-radius:var(--border-radius-md);background:#2563eb;color:#fff;cursor:pointer;margin-top:4px}.btn-submit:active{opacity:.85}
+.btn-action{width:100%;min-height:48px;padding:12px;font-size:14px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:transparent;color:var(--color-text-primary);cursor:pointer;margin-top:8px;text-align:left}.btn-action:active{background:var(--color-background-secondary)}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem}.metric{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.75rem 1rem;box-shadow:0 1px 2px rgba(31,35,40,.04)}
+.metric-val{font-size:26px;font-weight:600}.metric-lbl{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
+.asset-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:.875rem 1rem;margin-bottom:10px;box-shadow:0 1px 2px rgba(31,35,40,.04)}
+.asset-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px}.asset-top>div:first-child{min-width:0}.asset-title{font-size:15px;font-weight:600;overflow-wrap:anywhere}.asset-sub{font-size:13px;color:var(--color-text-secondary);margin-top:1px;overflow-wrap:anywhere}.asset-detail{font-size:12px;color:var(--color-text-secondary);margin-top:6px;line-height:1.5;overflow-wrap:anywhere}.badge{display:inline-block;font-size:11px;padding:3px 8px;border-radius:999px;font-weight:600;margin-top:6px}.b-active{background:#E1F5EE;color:#085041}.b-spare{background:#E8F2FF;color:#174A7C}.b-repair{background:#FAEEDA;color:#633806}.b-retired{background:#F1EFE8;color:#444441}.b-missing{background:#FAECE7;color:#712B13}.b-other{background:#EEEDFE;color:#3C3489}
+.del-btn{background:none;border:none;color:var(--color-text-secondary);font-size:22px;cursor:pointer;padding:0 0 0 8px;line-height:1;flex-shrink:0}.empty{text-align:center;padding:2.5rem 1rem;color:var(--color-text-secondary);font-size:14px}.section-title{font-size:14px;font-weight:600;margin-bottom:.75rem;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.04em}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}.bar-label{font-size:12px;color:var(--color-text-secondary);flex:0 0 38%;max-width:220px;overflow-wrap:anywhere}.bar-track{flex:1;height:12px;background:var(--color-background-secondary);border-radius:999px;overflow:hidden}.bar-fill{height:100%;border-radius:999px}.bar-count{font-size:13px;font-weight:600;min-width:20px;text-align:right}.toast{position:fixed;top:calc(10px + env(safe-area-inset-top));left:12px;right:12px;z-index:20;background:#1d4ed8;color:#fff;font-size:13px;padding:10px 16px;border-radius:var(--border-radius-md);text-align:center;opacity:0;transition:opacity .3s;pointer-events:none}.toast.show{opacity:1}.hint{font-size:12px;color:var(--color-text-secondary);margin-top:8px;line-height:1.4}.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+@media (max-width:520px){.wrap{padding:10px}.nav{gap:6px;margin-bottom:10px}.nav-btn{font-size:12px}.card{padding:14px;border-radius:12px}.metrics{grid-template-columns:1fr 1fr;gap:8px}.metric{padding:12px}.metric-val{font-size:24px}.two-col{grid-template-columns:1fr}.field-compact{margin-bottom:14px}.bar-row{display:grid;grid-template-columns:1fr;gap:6px;margin-bottom:14px}.bar-label{max-width:none;flex:auto;font-size:13px}.bar-track{width:100%;height:14px}.bar-count{text-align:left;min-width:0}}
+@media (max-width:360px){.metrics{grid-template-columns:1fr}.nav-btn{font-size:11px;padding-left:3px;padding-right:3px}}
+</style>
+</head>
+<body>
+<h2 class="sr-only">IT asset audit tracker — mobile-friendly asset logger using local storage</h2>
+<div class="wrap">
+<div class="nav">
+ <button class="nav-btn active" onclick="showTab('log')" id="nb-log"><i aria-hidden="true">＋</i>Log Asset</button>
+ <button class="nav-btn" onclick="showTab('assets')" id="nb-assets"><i aria-hidden="true">☷</i>Assets</button>
+ <button class="nav-btn" onclick="showTab('summary')" id="nb-summary"><i aria-hidden="true">▮</i>Summary</button>
+</div>
+<div id="tab-log" class="section active">
+ <div class="card">
+ <div id="toast" class="toast">Asset saved</div>
+ <div class="field"><label>Person assigned to / custodian *</label><input type="text" id="f-person" placeholder="e.g. Lutho Masoka" autocomplete="name"></div>
+ <div class="two-col">
+  <div class="field field-compact"><label>Asset tag *</label><input type="text" id="f-assettag" placeholder="e.g. IT-000123" autocomplete="off"></div>
+  <div class="field field-compact"><label>Serial number *</label><input type="text" id="f-serial" placeholder="Device serial number" autocomplete="off"></div>
+ </div>
+ <div class="two-col">
+  <div class="field field-compact"><label>Make *</label><input type="text" id="f-make" placeholder="e.g. Dell, HP, Lenovo" autocomplete="off"></div>
+  <div class="field field-compact"><label>Model *</label><input type="text" id="f-model" placeholder="e.g. Latitude 5440" autocomplete="off"></div>
+ </div>
+ <div class="field"><label>Department *</label><input type="text" id="f-department" placeholder="e.g. IT, Finance, Operations" autocomplete="organization-unit"></div>
+ <div class="two-col">
+  <div class="field field-compact"><label>Device type</label><select id="f-devicetype"><option value="Laptop">Laptop</option><option value="Desktop">Desktop</option><option value="Monitor">Monitor</option><option value="Printer">Printer</option><option value="Docking station">Docking station</option><option value="Tablet">Tablet</option><option value="Mobile phone">Mobile phone</option><option value="Network device">Network device</option><option value="Other">Other</option></select></div>
+  <div class="field field-compact"><label>Status / condition</label><select id="f-status"><option value="Active" selected>Active / in use</option><option value="Spare">Spare</option><option value="Needs repair">Needs repair</option><option value="Retired">Retired</option><option value="Missing">Missing</option><option value="Other">Other</option></select></div>
+ </div>
+ <div class="field"><label>Location</label><input type="text" id="f-location" placeholder="e.g. PE Office, Floor 2, Desk 14" autocomplete="off"></div>
+ <div class="two-col">
+  <div class="field field-compact"><label>Audited by</label><input type="text" id="f-auditor" placeholder="Your name / initials" autocomplete="name"></div>
+  <div class="field field-compact"><label>Audit date</label><input type="date" id="f-date"></div>
+ </div>
+ <div class="field"><label>Notes</label><textarea id="f-notes" placeholder="Accessories seen, damage, charger present, user confirmation, etc."></textarea></div>
+ <button class="btn-submit" onclick="addAsset()">Save asset</button>
+ <p class="hint">Data is saved in this browser using local storage. Export CSV regularly for backup or sharing.</p>
+ </div>
+</div>
+<div id="tab-assets" class="section">
+ <div class="metrics">
+  <div class="metric"><div class="metric-val" id="m-total">0</div><div class="metric-lbl">Total assets</div></div>
+  <div class="metric"><div class="metric-val" id="m-laptops">0</div><div class="metric-lbl">Laptops</div></div>
+  <div class="metric"><div class="metric-val" id="m-depts">0</div><div class="metric-lbl">Departments</div></div>
+  <div class="metric"><div class="metric-val" id="m-issues" style="color:#D85A30">0</div><div class="metric-lbl">Repair / missing</div></div>
+ </div>
+ <div class="field"><label>Search assets</label><input type="search" id="asset-search" placeholder="Search person, tag, serial, make, model, department..." oninput="renderAssets()"></div>
+ <div id="assets-list"><p class="empty">No assets yet — log your first one</p></div>
+ <button class="btn-action" onclick="exportCSV()">⬇ Export CSV</button>
+ <button class="btn-action" onclick="clearAllAssets()">⚠ Clear all local records</button>
+</div>
+<div id="tab-summary" class="section">
+ <div class="card"><div class="section-title">By device type</div><div id="type-chart"><p class="empty" style="padding:1rem 0">Add assets to see breakdown</p></div></div>
+ <div class="card"><div class="section-title">By department</div><div id="dept-chart"><p class="empty" style="padding:1rem 0">Add assets to see breakdown</p></div></div>
+ <div class="card"><div class="section-title">By status</div><div id="status-chart"><p class="empty" style="padding:1rem 0">Add assets to see breakdown</p></div></div>
+</div>
+</div>
+<script>
+const STORAGE_KEY='itAssetAudit.assets.v1';
+const DRAFT_KEY='itAssetAudit.draft.v1';
+const STATUS_META={Active:{cls:'b-active',color:'#1D9E75'},Spare:{cls:'b-spare',color:'#378ADD'},'Needs repair':{cls:'b-repair',color:'#EF9F27'},Retired:{cls:'b-retired',color:'#888780'},Missing:{cls:'b-missing',color:'#D85A30'},Other:{cls:'b-other',color:'#7F77DD'}};
+let assets=loadAssets();
+initFormState();updateMetrics();setupDraftAutosave();
+function storageAvailable(){try{const k='itAssetAudit.storageTest';localStorage.setItem(k,'1');localStorage.removeItem(k);return true;}catch(e){return false;}}
+function loadAssets(){if(!storageAvailable())return [];try{const saved=localStorage.getItem(STORAGE_KEY);const parsed=saved?JSON.parse(saved):[];return Array.isArray(parsed)?parsed:[];}catch(e){console.warn('Could not load saved IT asset audit data',e);return [];}}
+function saveAssets(){if(!storageAvailable()){showToast('Local storage unavailable');return;}try{localStorage.setItem(STORAGE_KEY,JSON.stringify(assets));}catch(e){showToast('Storage full — export CSV soon');}}
+function formIds(){return ['person','assettag','serial','make','model','department','devicetype','status','location','auditor','date','notes'];}
+function getDraft(){const d={};formIds().forEach(k=>{const el=document.getElementById('f-'+k);if(el)d[k]=el.value;});return d;}
+function saveDraft(){if(!storageAvailable())return;try{localStorage.setItem(DRAFT_KEY,JSON.stringify(getDraft()));}catch(e){console.warn('Could not save draft',e);}}
+function restoreDraft(){if(!storageAvailable())return false;try{const saved=localStorage.getItem(DRAFT_KEY);if(!saved)return false;const d=JSON.parse(saved);if(!d||typeof d!=='object')return false;formIds().forEach(k=>{const el=document.getElementById('f-'+k);if(el&&d[k]!==undefined)el.value=d[k];});return true;}catch(e){return false;}}
+function clearDraft(){if(storageAvailable())localStorage.removeItem(DRAFT_KEY);}
+function setupDraftAutosave(){formIds().forEach(k=>{const el=document.getElementById('f-'+k);if(el){el.addEventListener('input',saveDraft);el.addEventListener('change',saveDraft);}});}
+function initFormState(){const restored=restoreDraft();if(!document.getElementById('f-date').value){document.getElementById('f-date').valueAsDate=new Date();}if(restored)showToast('Draft restored');}
+function showTab(t){['log','assets','summary'].forEach(s=>{document.getElementById('tab-'+s).classList.toggle('active',s===t);document.getElementById('nb-'+s).classList.toggle('active',s===t);});if(t==='summary')renderSummary();if(t==='assets')renderAssets();}
+function showToast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2200);}
+function normalize(s){return (s||'').trim();}
+function addAsset(){const a={};formIds().forEach(k=>a[k]=normalize(document.getElementById('f-'+k).value));a.id=Date.now();a.createdAt=new Date().toISOString();if(!a.person||!a.assettag||!a.make||!a.serial||!a.model||!a.department){showToast('Please fill Person, Asset tag, Make, Serial, Model and Department');return;}const duplicate=assets.find(x=>x.id!==a.id&&(x.assettag.toLowerCase()===a.assettag.toLowerCase()||x.serial.toLowerCase()===a.serial.toLowerCase()));if(duplicate){showToast('Possible duplicate asset tag or serial number');return;}assets.push(a);saveAssets();updateMetrics();['person','assettag','serial','make','model','department','location','notes'].forEach(k=>document.getElementById('f-'+k).value='');document.getElementById('f-status').value='Active';document.getElementById('f-devicetype').value='Laptop';document.getElementById('f-date').valueAsDate=new Date();clearDraft();showToast('Asset saved');showTab('assets');}
+function renderAssets(){const el=document.getElementById('assets-list');const q=(document.getElementById('asset-search')?.value||'').toLowerCase();let list=[...assets].reverse();if(q){list=list.filter(a=>Object.values(a).some(v=>String(v||'').toLowerCase().includes(q)));}if(!list.length){el.innerHTML='<p class="empty">No matching assets found</p>';return;}el.innerHTML=list.map(a=>{const m=STATUS_META[a.status]||STATUS_META.Other;return `<div class="asset-card"><div class="asset-top"><div><div class="asset-title">${esc(a.assettag)} · ${esc(a.make)} ${esc(a.model)}</div><div class="asset-sub">${esc(a.person)} · ${esc(a.department)}</div></div><button class="del-btn" onclick="delAsset(${a.id})" aria-label="Delete">×</button></div><span class="badge ${m.cls}">${esc(a.status||'Other')}</span><div class="asset-detail"><b>Serial:</b> ${esc(a.serial)}<br><b>Type:</b> ${esc(a.devicetype||'')} ${a.location?' · <b>Location:</b> '+esc(a.location):''}<br><b>Audited:</b> ${esc(a.date||'')} ${a.auditor?'by '+esc(a.auditor):''}${a.notes?'<br><b>Notes:</b> '+esc(a.notes):''}</div></div>`;}).join('');}
+function delAsset(id){assets=assets.filter(a=>a.id!==id);saveAssets();updateMetrics();renderAssets();}
+function clearAllAssets(){if(!assets.length){showToast('No assets to clear');return;}if(confirm('Clear all locally saved audit records? Export CSV first if needed.')){assets=[];saveAssets();updateMetrics();renderAssets();renderSummary();showToast('All local records cleared');}}
+function updateMetrics(){document.getElementById('m-total').textContent=assets.length;document.getElementById('m-laptops').textContent=assets.filter(a=>(a.devicetype||'').toLowerCase()==='laptop').length;document.getElementById('m-depts').textContent=new Set(assets.map(a=>a.department).filter(Boolean)).size;document.getElementById('m-issues').textContent=assets.filter(a=>['Needs repair','Missing'].includes(a.status)).length;}
+function countBy(key){const c={};assets.forEach(a=>{const k=a[key]||'Not specified';c[k]=(c[k]||0)+1;});return c;}
+function renderChart(id,counts,color){const el=document.getElementById(id);if(!assets.length){el.innerHTML='<p class="empty" style="padding:1rem 0">Add assets to see breakdown</p>';return;}const max=Math.max(...Object.values(counts),1);el.innerHTML=Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="bar-row"><div class="bar-label">${esc(k)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/max*100)}%;background:${color}"></div></div><div class="bar-count">${v}</div></div>`).join('');}
+function renderSummary(){renderChart('type-chart',countBy('devicetype'),'#378ADD');renderChart('dept-chart',countBy('department'),'#7F77DD');renderChart('status-chart',countBy('status'),'#1D9E75');}
+function exportCSV(){if(!assets.length){showToast('No assets to export');return;}const h=['Person','AssetTag','Make','Serial Number','Model','Department','Device Type','Status','Location','Audited By','Audit Date','Notes','Created At'];const rows=assets.map(a=>[a.person,a.assettag,a.make,a.serial,a.model,a.department,a.devicetype,a.status,a.location,a.auditor,a.date,a.notes,a.createdAt].map(csvCell).join(','));const csv=[h.join(','),...rows].join('\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='it_asset_audit_'+new Date().toISOString().slice(0,10)+'.csv';a.click();}
+function csvCell(v){return `"${String(v||'').replace(/"/g,'""')}"`;}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+</script>
+</body>
+</html>
