@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IT Device Audit - Lenovo & Advantech</title>
+<style>
+body{font-family:Arial;padding:10px;background:#f5f6fa}
+.card{background:#fff;padding:12px;border-radius:10px;margin-bottom:12px}
+input,select,button{width:100%;padding:10px;margin-top:6px}
+button{background:#2563eb;color:#fff;border:none;border-radius:6px}
+.table{margin-top:10px}
+.item{border-bottom:1px solid #ddd;padding:8px 0}
+</style>
+</head>
+<body>
+<h2>IT Asset Audit</h2>
+
+<div class="card">
+<h3>Add / Edit Device</h3>
+<input id="assetTag" placeholder="Asset Tag">
+<input id="ip" placeholder="IP Address">
+<input id="mac" placeholder="MAC Address">
+<input id="serial" placeholder="Serial Number">
+<input id="tiny" placeholder="Tiny Label">
+<input id="monitor" placeholder="Monitor Asset Tag">
+
+<label>Scan Asset Tag</label>
+<input type="file" accept="image/*" capture="environment" onchange="scanPlaceholder()">
+
+<button onclick="saveItem()">Save</button>
+</div>
+
+<div class="card">
+<h3>Saved Records</h3>
+<div id="list"></div>
+</div>
+
+<script>
+const KEY = 'it.audit.devices.v2';
+let editId = null;
+let data = JSON.parse(localStorage.getItem(KEY)||'[]');
+
+function save(){ localStorage.setItem(KEY, JSON.stringify(data)); }
+
+function saveItem(){
+ const item = {
+  id: editId || Date.now(),
+  assetTag: val('assetTag'),
+  ip: val('ip'),
+  mac: val('mac'),
+  serial: val('serial'),
+  tiny: val('tiny'),
+  monitor: val('monitor')
+ };
+ if(editId){ data = data.map(x => x.id===editId ? item : x); }
+ else{ data.push(item); }
+ editId=null;
+ save(); render(); clearForm();
+}
+
+function editItem(id){
+ const f = data.find(x=>x.id===id);
+ editId=id;
+ Object.keys(f).forEach(k=>{
+  if(document.getElementById(k)){
+    document.getElementById(k).value=f[k]||'';
+  }
+ });
+}
+
+function del(id){
+ data = data.filter(x=>x.id!==id);
+ save(); render();
+}
+
+function render(){
+ const el = document.getElementById('list');
+ if(!data.length){ el.innerHTML='No records'; return; }
+ el.innerHTML = data.map(d=>`
+  <div class="item">
+    <b>${d.assetTag}</b><br>
+    IP: ${d.ip}<br>
+    MAC: ${d.mac}<br>
+    Serial: ${d.serial}<br>
+    Tiny: ${d.tiny}<br>
+    Monitor: ${d.monitor}<br>
+    <button onclick="editItem(${d.id})">Edit</button>
+    <button onclick="del(${d.id})">Delete</button>
+  </div>
+ `).join('');
+}
+
+function clearForm(){
+ ['assetTag','ip','mac','serial','tiny','monitor'].forEach(id=>{
+  document.getElementById(id).value='';
+ });
+}
+
+function val(id){ return document.getElementById(id).value.trim(); }
+
+function scanPlaceholder(){
+ alert('Camera opened. For real barcode scanning, we can add a scanner library.');
+}
+
+render();
+</script>
+
+</body>
+</html>
